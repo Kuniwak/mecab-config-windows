@@ -28,7 +28,4 @@ jobs:
           Add-Content -Path $Env:GITHUB_PATH -Value (Join-Path $Env:programfiles 'MeCab' 'bin')
 
       - run: |
-          & (Join-Path 'assets' 'install-mecab-config.ps1')
-
-      - run: |
           dotnet run --project src --libs
