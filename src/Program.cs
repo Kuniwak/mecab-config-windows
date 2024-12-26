@@ -77,15 +77,15 @@ class Program
 
                 case "--cflags":
                 {
-                    var sdkPath = Path.Combine(execPrefix, "sdk");
-                    Console.WriteLine($"\"-I{sdkPath}\"");
+                    var includePath = TryGetSdkPath(execPrefix, out var sdkPath) ? sdkPath : Path.Combine(execPrefix, "include");
+                    Console.WriteLine($"\"-I{includePath}\"");
                     break;
                 }
 
                 case "--libs":
                 {
-                    var sdkPath = Path.Combine(execPrefix, "sdk");
-                    Console.WriteLine($"\"-L{sdkPath}\" -lmecab -lstdc++");
+                    var libPath = TryGetSdkPath(execPrefix, out var sdkPath) ? sdkPath : Path.Combine(execPrefix, "lib");
+                    Console.WriteLine($"\"-L{libPath}\" -lmecab -lstdc++");
                     break;
                 }
 
@@ -94,20 +94,26 @@ class Program
                     break;
 
                 case "--inc-dir":
-                    Console.WriteLine(Path.Combine(execPrefix, "sdk"));
+                {
+                    Console.WriteLine(TryGetSdkPath(execPrefix, out var sdkPath) ? sdkPath : Path.Combine(execPrefix, "include"));
                     break;
+                }
 
                 case "--libs-only-L":
-                    Console.WriteLine(Path.Combine(execPrefix, "sdk"));
+                {
+                    Console.WriteLine(TryGetSdkPath(execPrefix, out var sdkPath) ? sdkPath : Path.Combine(execPrefix, "lib"));
                     break;
+                }
 
                 case "--libs-only-l":
-                    Console.WriteLine("-lmecab -lstdc++");
+                    Console.WriteLine("mecab stdc++");
                     break;
 
                 case "--libexecdir":
-                    Console.WriteLine(Path.Combine(execPrefix, "bin"));
+                {
+                    Console.WriteLine(TryGetLibExecPath(execPrefix, out var libExecPath) ? libExecPath : Path.Combine(execPrefix, "bin"));
                     break;
+                }
 
                 case "--sysconfdir":
                     Console.WriteLine(Path.Combine(execPrefix, "etc"));
@@ -185,7 +191,20 @@ class Program
         }
     }
 
-    static void ShowUsage()
+
+    private static bool TryGetSdkPath(string execPrefix, out string sdkPath)
+    {
+        sdkPath = Path.Combine(execPrefix, "sdk");
+        return Directory.Exists(sdkPath);
+    }
+
+    private static bool TryGetLibExecPath(string execPrefix, out string libExecPath)
+    {
+        libExecPath = Path.Combine(execPrefix, "libexec", "mecab");
+        return Directory.Exists(libExecPath);
+    }
+
+    private static void ShowUsage()
     {
         Console.WriteLine(
             @"Usage: mecab-config [OPTIONS]
